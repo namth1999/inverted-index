@@ -10,8 +10,9 @@ from map_reduce_lib import *
 
 
 def mapper_inverted_index(line):
-    """ Map function for the word count job.
-    Splits line into words, removes low information words (i.e. stopwords) and outputs (key, 1).
+    """ Map function for the inverted index exercise.
+    Splits line into words, removes low information words (i.e. stopwords), scan through regular expression
+    and outputs (worf, file and line number).
     """
     # process_print('is processing `%s`' % line)
     output = []
@@ -35,6 +36,7 @@ def mapper_inverted_index(line):
     words_list = words.split()
     # Split into words and add to output list.
     for word in words_list:
+        #Check if word matches regular expression
         word = re.sub('([^a-z])', '', word)
         # Only if word is not in the stop word list, add to output.
         if word not in STOP_WORDS:
@@ -43,8 +45,9 @@ def mapper_inverted_index(line):
 
 
 def reduce_inverted_index(key_value_item):
-    """ Reduce function for the word count job.
-    Converts partitioned shakespear (key, [value]) to a summary of form (key, value).
+    """ Reduce function for the inverted index exercise.
+    Converts partitioned data (key, [value]) to a summary of form (key, bookmark)
+    If word appears more than once, add it to a list using ,
     """
     bookmarks = ''
     key, values = key_value_item
@@ -68,11 +71,13 @@ if __name__ == '__main__':
         for fn in filenames:
             with open('%s/%s' % (sys.argv[1], fn), 'r') as input_file:
                 lines = input_file.read().splitlines()
+                #Add the file name to ouput
                 linesWithFn = [('%s\t%s' % (line, fn)) for line in lines]
                 file_contents.extend(linesWithFn)
     elif os.path.isfile(sys.argv[1]):
         with open(sys.argv[1], 'r') as input_file:
             lines = input_file.read().splitlines()
+            #Add the file name to output
             linesWithFn = [('%s\t%s' % (line, sys.argv[1])) for line in lines]
             file_contents.extend(linesWithFn)
     elif not os.path.isdir(sys.argv[1]) or not os.path.isfile(sys.argv[1]):
