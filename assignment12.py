@@ -12,7 +12,7 @@ from map_reduce_lib import *
 def mapper_inverted_index(line):
     """ Map function for the inverted index exercise.
     Splits line into words, removes low information words (i.e. stopwords), scan through regular expression
-    and outputs (worf, file and line number).
+    and outputs (word, file and line number).
     """
     # process_print('is processing `%s`' % line)
     output = []
@@ -37,7 +37,7 @@ def mapper_inverted_index(line):
     # Split into words and add to output list.
     for word in words_list:
         #Check if word matches regular expression
-        word = re.sub('([^a-z])', '', word)
+        word = re.sub(r'([^\w\s]|_)+(?=\s|$)', '', word)
         # Only if word is not in the stop word list, add to output.
         if word not in STOP_WORDS:
             output.append((word, '%s@%s' % (file, num)))
@@ -47,7 +47,7 @@ def mapper_inverted_index(line):
 def reduce_inverted_index(key_value_item):
     """ Reduce function for the inverted index exercise.
     Converts partitioned data (key, [value]) to a summary of form (key, bookmark)
-    If word appears more than once, add it to a list using ,
+    If word appears more than once, add its bookmark to a string split by ,
     """
     bookmarks = ''
     key, values = key_value_item
